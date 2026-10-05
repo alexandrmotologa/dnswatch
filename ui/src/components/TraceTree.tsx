@@ -43,7 +43,7 @@ export const TraceTree: React.FC<TraceTreeProps> = ({ data, loading }) => {
   return (
     <div className="space-y-6">
       {/* Overview header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-xl bg-slate-900/60 border border-slate-800 shadow-md">
         <div>
           <h3 className="text-base font-semibold text-slate-200">
             Recursive Delegation Trace
@@ -52,7 +52,7 @@ export const TraceTree: React.FC<TraceTreeProps> = ({ data, loading }) => {
             {data.domain} (Type: {data.query_type})
           </p>
         </div>
-        <div className="flex items-center gap-4 text-xs font-mono">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs font-mono">
           <div>
             <span className="text-slate-500">Total Latency:</span>{' '}
             <span className="text-indigo-400 font-medium">{(data.total_rtt / 1000000).toFixed(1)}ms</span>
@@ -83,35 +83,35 @@ export const TraceTree: React.FC<TraceTreeProps> = ({ data, loading }) => {
           </div>
           <div className="font-mono text-slate-300 space-y-0.5">
             {data.cname_chain.map((c, idx) => (
-              <div key={idx} className="pl-4">↳ {c}</div>
+              <div key={idx} className="pl-4 break-all">↳ {c}</div>
             ))}
           </div>
         </div>
       )}
 
       {/* Hops tree list */}
-      <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-4 before:bottom-4 before:w-0.5 before:bg-gradient-to-b before:from-indigo-500 before:via-sky-500 before:to-emerald-500">
+      <div className="relative pl-6 sm:pl-7 space-y-5 sm:space-y-6 before:absolute before:left-2 before:top-4 before:bottom-4 before:w-0.5 before:bg-gradient-to-b before:from-indigo-500 before:via-sky-500 before:to-emerald-500">
         {data.hops.map((hop) => (
           <div key={hop.step} className="relative group">
             {/* Step marker */}
-            <div className="absolute -left-[27px] top-3.5 w-5 h-5 rounded-full bg-slate-900 border-2 border-indigo-500 flex items-center justify-center text-[10px] font-bold text-indigo-300 shadow-md">
+            <div className="absolute -left-[24px] sm:-left-[27px] top-3.5 w-5 h-5 rounded-full bg-slate-900 border-2 border-indigo-500 flex items-center justify-center text-[10px] font-bold text-indigo-300 shadow-md">
               {hop.step}
             </div>
 
-            <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-colors shadow-lg">
-              <div className="flex flex-wrap items-center justify-between gap-2 mb-2.5">
-                <div className="flex items-center gap-2">
+            <div className="p-3.5 sm:p-4 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-colors shadow-lg">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2.5">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="text-xs px-2 py-0.5 rounded font-mono font-semibold bg-indigo-950/80 text-indigo-300 border border-indigo-800/50">
                     Zone: {hop.zone}
                   </span>
-                  <span className="text-sm font-medium text-slate-100">
+                  <span className="text-sm font-medium text-slate-100 break-all">
                     {hop.server_name}
                   </span>
-                  <span className="text-xs font-mono text-slate-400">
+                  <span className="text-xs font-mono text-slate-400 break-all">
                     ({hop.server_ip})
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   {formatRTT(hop.rtt)}
                   {hop.authoritative && (
                     <span className="text-xs px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 text-[10px] font-semibold">

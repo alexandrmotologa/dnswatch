@@ -105,8 +105,8 @@ export const PropagationMap: React.FC<PropagationMapProps> = ({ data, loading })
   return (
     <div className="space-y-6">
       {/* Top Consensus Summary Card */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-5 rounded-xl bg-slate-900/60 border border-slate-800">
-        <div className="md:col-span-2 space-y-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 p-4 sm:p-5 rounded-xl bg-slate-900/60 border border-slate-800">
+        <div className="sm:col-span-2 space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
               Global Propagation Consensus
@@ -122,7 +122,7 @@ export const PropagationMap: React.FC<PropagationMapProps> = ({ data, loading })
               style={{ width: `${Math.min(100, data.propagation_rate)}%` }}
             ></div>
           </div>
-          <div className="text-xs text-slate-400 flex items-center justify-between pt-1 font-mono">
+          <div className="text-xs text-slate-400 flex flex-wrap items-center justify-between pt-1 font-mono gap-1">
             <span>
               {data.success_count} / {data.total_tested} Edge Resolvers Responded
             </span>
@@ -153,18 +153,18 @@ export const PropagationMap: React.FC<PropagationMapProps> = ({ data, loading })
       </div>
 
       {/* World Map SVG Projection */}
-      <div className="relative rounded-2xl border border-slate-800 bg-slate-950/80 p-4 overflow-hidden shadow-2xl">
-        <div className="flex items-center justify-between mb-3 px-2">
-          <div className="flex items-center gap-2">
+      <div className="relative rounded-2xl border border-slate-800 bg-slate-950/80 p-3 sm:p-4 overflow-hidden shadow-2xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 px-1 sm:px-2 gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
               <span>🌐</span> Edge Vantage Map
             </span>
-            <span className="text-[11px] text-slate-500">
+            <span className="text-[11px] text-slate-500 hidden sm:inline">
               (Click a pin to highlight in list below)
             </span>
           </div>
           {/* Status legend */}
-          <div className="flex items-center gap-4 text-[11px] font-mono">
+          <div className="flex items-center gap-3 sm:gap-4 text-[11px] font-mono">
             <div className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 ring-4 ring-emerald-500/20"></span>
               <span className="text-slate-300">Match</span>
@@ -363,13 +363,13 @@ export const PropagationMap: React.FC<PropagationMapProps> = ({ data, loading })
           <table className="w-full text-left text-xs">
             <thead>
               <tr className="bg-slate-900/90 border-b border-slate-800 text-slate-400 font-semibold tracking-wider uppercase text-[10px]">
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4">Provider</th>
-                <th className="py-3 px-4">Location</th>
-                <th className="py-3 px-4">Region</th>
-                <th className="py-3 px-4">Latency</th>
-                <th className="py-3 px-4">TTL</th>
-                <th className="py-3 px-4">Resolved Answer</th>
+                <th className="py-3 px-3 sm:px-4">Status</th>
+                <th className="py-3 px-3 sm:px-4">Provider</th>
+                <th className="py-3 px-3 sm:px-4">Location</th>
+                <th className="hidden lg:table-cell py-3 px-4">Region</th>
+                <th className="py-3 px-3 sm:px-4">Latency</th>
+                <th className="hidden sm:table-cell py-3 px-4">TTL</th>
+                <th className="py-3 px-3 sm:px-4">Resolved Answer</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60 font-mono">
@@ -386,7 +386,7 @@ export const PropagationMap: React.FC<PropagationMapProps> = ({ data, loading })
                         : 'hover:bg-slate-800/30'
                     }`}
                   >
-                    <td className="py-2.5 px-4">
+                    <td className="py-2.5 px-3 sm:px-4">
                       {node.error ? (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold bg-rose-950/80 text-rose-300 border border-rose-800/50">
                           ✖ TIMEOUT
@@ -401,22 +401,22 @@ export const PropagationMap: React.FC<PropagationMapProps> = ({ data, loading })
                         </span>
                       )}
                     </td>
-                    <td className="py-2.5 px-4 font-sans font-medium text-slate-200">
+                    <td className="py-2.5 px-3 sm:px-4 font-sans font-medium text-slate-200">
                       {node.provider.name}
                     </td>
-                    <td className="py-2.5 px-4 text-slate-300">
+                    <td className="py-2.5 px-3 sm:px-4 text-slate-300">
                       {node.provider.city}
                     </td>
-                    <td className="py-2.5 px-4 text-slate-400">
+                    <td className="hidden lg:table-cell py-2.5 px-4 text-slate-400">
                       {node.provider.region}
                     </td>
-                    <td className="py-2.5 px-4">
+                    <td className="py-2.5 px-3 sm:px-4">
                       {formatRTT(node.rtt)}
                     </td>
-                    <td className="py-2.5 px-4 text-slate-400">
+                    <td className="hidden sm:table-cell py-2.5 px-4 text-slate-400">
                       {node.ttl > 0 ? `${node.ttl}s` : '-'}
                     </td>
-                    <td className="py-2.5 px-4 text-slate-200 truncate max-w-xs" title={answersStr || node.error}>
+                    <td className="py-2.5 px-3 sm:px-4 text-slate-200 truncate max-w-[140px] sm:max-w-xs" title={answersStr || node.error}>
                       {node.error ? (
                         <span className="text-slate-500 font-sans italic">{node.error}</span>
                       ) : (

@@ -43,16 +43,16 @@ export const QueryBar: React.FC<QueryBarProps> = ({
             type="text"
             value={domain}
             onChange={(e) => setDomain(e.target.value)}
-            placeholder="Enter domain (e.g. cloudflare.com, github.com)..."
+            placeholder="Enter domain (e.g. cloudflare.com)..."
             className="w-full pl-10 pr-4 py-2.5 bg-slate-900/80 border border-slate-700/80 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 font-mono text-sm transition-all shadow-inner"
           />
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <select
             value={qtype}
             onChange={(e) => setQtype(e.target.value)}
-            className="px-3.5 py-2.5 bg-slate-900/80 border border-slate-700/80 rounded-xl text-indigo-300 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 cursor-pointer shadow-inner"
+            className="w-28 sm:w-auto px-3.5 py-2.5 bg-slate-900/80 border border-slate-700/80 rounded-xl text-indigo-300 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 cursor-pointer shadow-inner shrink-0"
           >
             {RECORD_TYPES.map((t) => (
               <option key={t} value={t} className="bg-slate-900 text-slate-200">
@@ -64,7 +64,7 @@ export const QueryBar: React.FC<QueryBarProps> = ({
           <button
             type="submit"
             disabled={loading || !domain.trim()}
-            className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-500 text-white font-medium text-sm rounded-xl transition-all shadow-lg shadow-indigo-600/25 flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed shrink-0"
+            className="flex-1 sm:flex-none justify-center px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-500 text-white font-medium text-sm rounded-xl transition-all shadow-lg shadow-indigo-600/25 flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed shrink-0"
           >
             {loading ? (
               <>

@@ -99,14 +99,14 @@ export const DnssecChain: React.FC<DnssecChainProps> = ({ data, loading }) => {
           return (
             <div
               key={node.zone}
-              className="p-5 rounded-xl bg-slate-900/70 border border-slate-800 shadow-lg space-y-3"
+              className="p-3.5 sm:p-5 rounded-xl bg-slate-900/70 border border-slate-800 shadow-lg space-y-3"
             >
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
                 <div className="flex items-center gap-2.5">
-                  <span className="w-6 h-6 rounded-lg bg-indigo-950 text-indigo-400 border border-indigo-800 flex items-center justify-center text-xs font-mono font-bold">
+                  <span className="w-6 h-6 rounded-lg bg-indigo-950 text-indigo-400 border border-indigo-800 flex items-center justify-center text-xs font-mono font-bold shrink-0">
                     {idx + 1}
                   </span>
-                  <span className="text-sm font-bold font-mono text-slate-100">
+                  <span className="text-sm font-bold font-mono text-slate-100 break-all">
                     Zone: {node.zone === '.' ? '. (Root Zone Trust Anchor)' : node.zone}
                   </span>
                 </div>
@@ -124,7 +124,7 @@ export const DnssecChain: React.FC<DnssecChainProps> = ({ data, loading }) => {
               </div>
 
               {/* Grid of cryptographic properties */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 text-xs">
                 {/* Algorithms */}
                 <div className="p-2.5 rounded-lg bg-slate-800/40 border border-slate-700/40">
                   <span className="text-[10px] text-slate-500 uppercase tracking-wider block font-semibold">
@@ -140,7 +140,7 @@ export const DnssecChain: React.FC<DnssecChainProps> = ({ data, loading }) => {
                   <span className="text-[10px] text-slate-500 uppercase tracking-wider block font-semibold">
                     Key Tags (KSK / ZSK)
                   </span>
-                  <span className="font-mono text-slate-200 block">
+                  <span className="font-mono text-slate-200 block break-all">
                     {node.ksk_key_tags.length > 0 ? `KSK: ${node.ksk_key_tags.join(',')}` : ''}
                     {node.zsk_key_tags.length > 0 ? ` | ZSK: ${node.zsk_key_tags.join(',')}` : ''}
                     {node.ksk_key_tags.length === 0 && node.zsk_key_tags.length === 0 ? 'None' : ''}
