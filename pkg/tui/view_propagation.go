@@ -88,7 +88,11 @@ func (m Model) renderPropagationView() string {
 			statusStr = successBadge.Render("✔ MATCH")
 			var ansList []string
 			for _, a := range node.Answers {
-				ansList = append(ansList, a.Data)
+				str := a.Data
+				if a.IPInfo != nil && a.IPInfo.ASN > 0 {
+					str += fmt.Sprintf(" [AS%d]", a.IPInfo.ASN)
+				}
+				ansList = append(ansList, str)
 			}
 			answerStr = strings.Join(ansList, ", ")
 			ttlStr = fmt.Sprintf("%ds", node.TTL)
@@ -96,14 +100,18 @@ func (m Model) renderPropagationView() string {
 			statusStr = warningBadge.Render("▲ DIVERGENT")
 			var ansList []string
 			for _, a := range node.Answers {
-				ansList = append(ansList, a.Data)
+				str := a.Data
+				if a.IPInfo != nil && a.IPInfo.ASN > 0 {
+					str += fmt.Sprintf(" [AS%d]", a.IPInfo.ASN)
+				}
+				ansList = append(ansList, str)
 			}
 			answerStr = strings.Join(ansList, ", ")
 			ttlStr = fmt.Sprintf("%ds", node.TTL)
 		}
 
-		if len(answerStr) > 35 {
-			answerStr = answerStr[:32] + "..."
+		if len(answerStr) > 40 {
+			answerStr = answerStr[:37] + "..."
 		}
 
 		line := fmt.Sprintf("  %-16s %-18s %-24s %-10s %-8s %-6s %s",

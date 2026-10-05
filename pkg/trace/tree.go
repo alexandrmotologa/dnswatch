@@ -5,18 +5,20 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alexandrmotologa/dnswatch/pkg/enrich"
 	"github.com/alexandrmotologa/dnswatch/pkg/resolver"
 	"github.com/miekg/dns"
 )
 
 // RecordInfo represents a human-readable DNS resource record.
 type RecordInfo struct {
-	Name  string `json:"name"`
-	Type  string `json:"type"`
-	TTL   uint32 `json:"ttl"`
-	Class string `json:"class"`
-	Data  string `json:"data"`
-	Raw   string `json:"raw"`
+	Name   string         `json:"name"`
+	Type   string         `json:"type"`
+	TTL    uint32         `json:"ttl"`
+	Class  string         `json:"class"`
+	Data   string         `json:"data"`
+	Raw    string         `json:"raw"`
+	IPInfo *enrich.IPInfo `json:"ip_info,omitempty"`
 }
 
 // ParseRR converts a miekg/dns.RR into a structured RecordInfo.
@@ -91,11 +93,12 @@ func ParseRRs(rrs []dns.RR) []RecordInfo {
 
 // TraceHop represents a single resolution step in the delegation hierarchy.
 type TraceHop struct {
-	Step         int                  `json:"step"`
-	Zone         string               `json:"zone"`
-	ServerName   string               `json:"server_name"`
-	ServerIP     string               `json:"server_ip"`
-	RTT          time.Duration        `json:"rtt"`
+	Step          int                  `json:"step"`
+	Zone          string               `json:"zone"`
+	ServerName    string               `json:"server_name"`
+	ServerIP      string               `json:"server_ip"`
+	ServerInfo    *enrich.IPInfo       `json:"server_info,omitempty"`
+	RTT           time.Duration        `json:"rtt"`
 	Flags        resolver.HeaderFlags `json:"flags"`
 	Rcode        int                  `json:"rcode"`
 	RcodeStr     string               `json:"rcode_str"`

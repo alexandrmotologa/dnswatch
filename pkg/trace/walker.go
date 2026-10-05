@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alexandrmotologa/dnswatch/pkg/enrich"
 	"github.com/alexandrmotologa/dnswatch/pkg/resolver"
 	"github.com/miekg/dns"
 )
@@ -130,6 +131,7 @@ func (w *Walker) Trace(ctx context.Context, domain string, qtype uint16) (*Trace
 				Zone:          currentZone,
 				ServerName:    currentServerName,
 				ServerIP:      currentServerIP,
+				ServerInfo:    enrich.GetDefaultEnricher().LookupIP(ctx, currentServerIP),
 				RTT:           resp.RTT,
 				Flags:         resolver.ExtractFlags(resp.Msg),
 				Rcode:         resp.Msg.Rcode,
@@ -170,7 +172,11 @@ func (w *Walker) Trace(ctx context.Context, domain string, qtype uint16) (*Trace
 
 			for _, rr := range resp.Msg.Answer {
 				if rr.Header().Rrtype == currentQtype && strings.EqualFold(rr.Header().Name, currentQname) {
-					finalRRs = append(finalRRs, ParseRR(rr))
+					parsed := ParseRR(rr)
+					if parsed.Type == "A" || parsed.Type == "AAAA" {
+						parsed.IPInfo = enrich.GetDefaultEnricher().LookupIP(ctx, parsed.Data)
+					}
+					finalRRs = append(finalRRs, parsed)
 				}
 				if rr.Header().Rrtype == dns.TypeCNAME && strings.EqualFold(rr.Header().Name, currentQname) {
 					if cnameRR, ok := rr.(*dns.CNAME); ok {

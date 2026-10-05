@@ -5,6 +5,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/alexandrmotologa/dnswatch/pkg/enrich"
 	"github.com/alexandrmotologa/dnswatch/pkg/resolver"
 	"github.com/alexandrmotologa/dnswatch/pkg/trace"
 	"github.com/miekg/dns"
@@ -82,7 +83,11 @@ func (r *Runner) Check(ctx context.Context, domain string, qtype uint16) (*Propa
 			var hasTTL bool
 			for _, rr := range resp.Msg.Answer {
 				if rr.Header().Rrtype == qtype {
-					parsedAnswers = append(parsedAnswers, trace.ParseRR(rr))
+					parsed := trace.ParseRR(rr)
+					if parsed.Type == "A" || parsed.Type == "AAAA" {
+						parsed.IPInfo = enrich.GetDefaultEnricher().LookupIP(queryCtx, parsed.Data)
+					}
+					parsedAnswers = append(parsedAnswers, parsed)
 					if !hasTTL || rr.Header().Ttl < minTTL {
 						minTTL = rr.Header().Ttl
 						hasTTL = true
@@ -93,7 +98,11 @@ func (r *Runner) Check(ctx context.Context, domain string, qtype uint16) (*Propa
 			// If no direct matching qtype record was found but answer contains other records (like CNAME), include them
 			if len(parsedAnswers) == 0 && len(resp.Msg.Answer) > 0 {
 				for _, rr := range resp.Msg.Answer {
-					parsedAnswers = append(parsedAnswers, trace.ParseRR(rr))
+					parsed := trace.ParseRR(rr)
+					if parsed.Type == "A" || parsed.Type == "AAAA" {
+						parsed.IPInfo = enrich.GetDefaultEnricher().LookupIP(queryCtx, parsed.Data)
+					}
+					parsedAnswers = append(parsedAnswers, parsed)
 					if !hasTTL || rr.Header().Ttl < minTTL {
 						minTTL = rr.Header().Ttl
 						hasTTL = true

@@ -1,0 +1,62 @@
+name: 'DNSWatch Action'
+description: 'Automated DNS recursive tracing, DNSSEC validation, global edge propagation, and security hygiene auditing.'
+author: 'Alexandr Motologa'
+
+branding:
+  icon: 'globe'
+  color: 'indigo'
+
+inputs:
+  command:
+    description: 'Subcommand to execute (audit, trace, propagate, dnssec, diff, bench)'
+    required: false
+    default: 'audit'
+  domain:
+    description: 'Target domain name to analyze'
+    required: true
+  type:
+    description: 'DNS query type (A, AAAA, MX, TXT, CNAME, etc.)'
+    required: false
+    default: 'A'
+  format:
+    description: 'Output format (table, json)'
+    required: false
+    default: 'table'
+  fail_on_error:
+    description: 'Fail step if DNSSEC is bogus or audit score is below threshold'
+    required: false
+    default: 'true'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Go runtime
+      uses: actions/setup-go@v5
+      with:
+        go-version: '>=1.22'
+        cache: true
+
+    - name: Run DNSWatch Command
+      shell: bash
+      run: |
+        CMD="${{ inputs.command }}"
+        DOMAIN="${{ inputs.domain }}"
+        TYPE="${{ inputs.type }}"
+        FORMAT="${{ inputs.format }}"
+
+        echo "Executing DNSWatch: $CMD for $DOMAIN ($TYPE)..."
+
+        if [ "$CMD" = "audit" ]; then
+          go run ./cmd/dnswatch audit "$DOMAIN" --format="$FORMAT"
+        elif [ "$CMD" = "trace" ]; then
+          go run ./cmd/dnswatch trace "$DOMAIN" --type="$TYPE" --format="$FORMAT"
+        elif [ "$CMD" = "propagate" ]; then
+          go run ./cmd/dnswatch propagate "$DOMAIN" --type="$TYPE" --format="$FORMAT"
+        elif [ "$CMD" = "dnssec" ]; then
+          go run ./cmd/dnswatch dnssec "$DOMAIN" --type="$TYPE" --format="$FORMAT"
+        elif [ "$CMD" = "bench" ]; then
+          go run ./cmd/dnswatch bench "$DOMAIN"
+        else
+          echo "Unknown command: $CMD"
+          exit 1
+        fi

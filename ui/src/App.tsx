@@ -5,6 +5,7 @@ import { PropagationMap } from './components/PropagationMap';
 import { DnssecChain } from './components/DnssecChain';
 import { AuditReport } from './components/AuditReport';
 import { SummaryResult } from './types';
+import { exportSummaryAsJSON, exportSummaryAsHTML } from './utils/export';
 
 type Tab = 'trace' | 'propagation' | 'dnssec' | 'audit' | 'all';
 
@@ -62,11 +63,35 @@ export const App: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 text-xs">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-950/60 border border-emerald-800/60 text-emerald-400 font-mono">
+          <div className="flex items-center gap-2.5 text-xs">
+            <span className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-950/60 border border-emerald-800/60 text-emerald-400 font-mono">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
               Local Engine Active
             </span>
+
+            {summary && (
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => exportSummaryAsHTML(summary)}
+                  title="Download standalone styled HTML audit report"
+                  className="px-2.5 py-1.5 rounded-lg bg-indigo-600/90 hover:bg-indigo-600 text-white font-medium flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+                >
+                  <span>📄</span>
+                  <span>Export HTML</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => exportSummaryAsJSON(summary)}
+                  title="Download raw JSON report"
+                  className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  <span>⬇</span>
+                  <span>JSON</span>
+                </button>
+              </div>
+            )}
+
             <a
               href="https://github.com/alexandrmotologa/dnswatch"
               target="_blank"

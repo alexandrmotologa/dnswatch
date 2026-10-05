@@ -4,11 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/alexandrmotologa/dnswatch/pkg/audit"
+	"github.com/alexandrmotologa/dnswatch/pkg/benchmark"
+	"github.com/alexandrmotologa/dnswatch/pkg/diff"
 	"github.com/alexandrmotologa/dnswatch/pkg/dnssec"
 	"github.com/alexandrmotologa/dnswatch/pkg/propagation"
 	"github.com/alexandrmotologa/dnswatch/pkg/trace"
@@ -25,6 +28,8 @@ type Server struct {
 	propRunner  *propagation.Runner
 	dnssecVal   *dnssec.Validator
 	auditor     *audit.Auditor
+	differ      *diff.Differ
+	benchmarker *benchmark.Benchmarker
 }
 
 // NewServer creates a new API server instance.
@@ -35,6 +40,8 @@ func NewServer() *Server {
 		propRunner:  propagation.NewRunner(propagation.DefaultRunnerConfig(), nil),
 		dnssecVal:   dnssec.NewValidator(4 * time.Second),
 		auditor:     audit.NewAuditor(4 * time.Second),
+		differ:      diff.NewDiffer(4 * time.Second),
+		benchmarker: benchmark.NewBenchmarker(3*time.Second, nil),
 	}
 
 	s.setupRoutes()
@@ -72,6 +79,8 @@ func (s *Server) setupRoutes() {
 		r.Get("/dnssec", s.handleDNSSEC)
 		r.Get("/audit", s.handleAudit)
 		r.Get("/summary", s.handleSummary)
+		r.Get("/diff", s.handleDiff)
+		r.Get("/bench", s.handleBench)
 	})
 }
 
@@ -234,8 +243,68 @@ func (s *Server) handleSummary(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, summary)
 }
 
+func (s *Server) handleDiff(w http.ResponseWriter, r *http.Request) {
+	ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
+	defer cancel()
+
+	domain1 := r.URL.Query().Get("domain1")
+	domain2 := r.URL.Query().Get("domain2")
+	ns1 := r.URL.Query().Get("ns1")
+	ns2 := r.URL.Query().Get("ns2")
+
+	if domain1 != "" && domain2 != "" {
+		res, err := s.differ.CompareDomains(ctx, domain1, domain2, "1.1.1.1:53")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		writeJSON(w, http.StatusOK, res)
+		return
+	}
+
+	domain := r.URL.Query().Get("domain")
+	if domain != "" && ns1 != "" && ns2 != "" {
+		res, err := s.differ.CompareServers(ctx, domain, ns1, ns2)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		writeJSON(w, http.StatusOK, res)
+		return
+	}
+
+	http.Error(w, "provide either (domain1 and domain2) or (domain, ns1 and ns2)", http.StatusBadRequest)
+}
+
+func (s *Server) handleBench(w http.ResponseWriter, r *http.Request) {
+	domain := r.URL.Query().Get("domain")
+	if domain == "" {
+		http.Error(w, "missing domain parameter", http.StatusBadRequest)
+		return
+	}
+	qtype := parseQType(r.URL.Query().Get("type"))
+	rounds := 3
+	if rStr := r.URL.Query().Get("rounds"); rStr != "" {
+		if val, err := strconv.Atoi(rStr); err == nil && val > 0 && val <= 10 {
+			rounds = val
+		}
+	}
+
+	ctx, cancel := context.WithTimeout(r.Context(), 12*time.Second)
+	defer cancel()
+
+	report, err := s.benchmarker.Run(ctx, domain, qtype, rounds)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, report)
+}
+
 func writeJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	_ = json.NewEncoder(w).Encode(data)
 }
+

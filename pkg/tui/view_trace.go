@@ -78,11 +78,17 @@ func (m Model) renderTraceView() string {
 		}
 
 		stepLabel := fmt.Sprintf("[%d] Zone: %s", hop.Step, hop.Zone)
-		b.WriteString(fmt.Sprintf("  %s %s ➔ %s (%s)  RTT: %s\n",
+		asnLabel := ""
+		if hop.ServerInfo != nil && hop.ServerInfo.FormattedLabel() != "" {
+			asnLabel = " " + lipgloss.NewStyle().Foreground(lipgloss.Color("#A78BFA")).Render(hop.ServerInfo.FormattedLabel())
+		}
+
+		b.WriteString(fmt.Sprintf("  %s %s ➔ %s (%s)%s  RTT: %s\n",
 			prefix,
 			hopHeaderStyle.Render(stepLabel),
 			serverStyle.Render(hop.ServerName),
 			hop.ServerIP,
+			asnLabel,
 			formatRTT(hop.RTT),
 		))
 
@@ -137,7 +143,11 @@ func (m Model) renderTraceView() string {
 		var ansLines []string
 		ansLines = append(ansLines, lipgloss.NewStyle().Bold(true).Render("✔ Authoritative Answer(s):"))
 		for _, ans := range res.FinalAnswers {
-			ansLines = append(ansLines, fmt.Sprintf("  • %-5s TTL:%-5d %s", ans.Type, ans.TTL, ans.Data))
+			ansASN := ""
+			if ans.IPInfo != nil && ans.IPInfo.FormattedLabel() != "" {
+				ansASN = " " + lipgloss.NewStyle().Foreground(lipgloss.Color("#A78BFA")).Render(ans.IPInfo.FormattedLabel())
+			}
+			ansLines = append(ansLines, fmt.Sprintf("  • %-5s TTL:%-5d %s%s", ans.Type, ans.TTL, ans.Data, ansASN))
 		}
 		b.WriteString("  " + answerCardStyle.Render(strings.Join(ansLines, "\n")))
 		b.WriteString("\n")
