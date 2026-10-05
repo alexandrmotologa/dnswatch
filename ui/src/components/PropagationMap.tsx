@@ -96,11 +96,13 @@ export const PropagationMap: React.FC<PropagationMapProps> = ({ data, loading })
     return <span className={`font-mono text-xs font-medium ${color}`}>{ms.toFixed(1)}ms</span>;
   };
 
-  const regions = ['ALL', ...Array.from(new Set(data.results.map((r) => r.provider.continent)))];
+  const resultsList = data.results || [];
+  const consensusList = data.consensus_answers || [];
+  const regions = ['ALL', ...Array.from(new Set(resultsList.map((r) => r.provider?.continent || 'Unknown')))];
 
   const filteredResults = filterRegion === 'ALL'
-    ? data.results
-    : data.results.filter((r) => r.provider.continent === filterRegion);
+    ? resultsList
+    : resultsList.filter((r) => (r.provider?.continent || 'Unknown') === filterRegion);
 
   return (
     <div className="space-y-6">
@@ -126,9 +128,9 @@ export const PropagationMap: React.FC<PropagationMapProps> = ({ data, loading })
             <span>
               {data.success_count} / {data.total_tested} Edge Resolvers Responded
             </span>
-            {data.consensus_answers.length > 0 && (
-              <span className="text-indigo-300 font-medium truncate max-w-xs" title={data.consensus_answers.join(', ')}>
-                Consensus: {data.consensus_answers.join(', ')}
+            {consensusList.length > 0 && (
+              <span className="text-indigo-300 font-medium truncate max-w-xs" title={consensusList.join(', ')}>
+                Consensus: {consensusList.join(', ')}
               </span>
             )}
           </div>
@@ -235,7 +237,7 @@ export const PropagationMap: React.FC<PropagationMapProps> = ({ data, loading })
             </g>
 
             {/* Edge Nodes as Animated Pins */}
-            {data.results.map((node, i) => {
+            {resultsList.map((node, i) => {
               const pos = getNodePosition(node, i);
               const isSelected = selectedNodeId === node.provider.id;
               const isHovered = hoveredNode?.provider.id === node.provider.id;
@@ -327,9 +329,9 @@ export const PropagationMap: React.FC<PropagationMapProps> = ({ data, loading })
                 <div>Status: <span className={hoveredNode.error ? 'text-rose-400 font-bold' : hoveredNode.matched_consensus ? 'text-emerald-400' : 'text-amber-400'}>
                   {hoveredNode.error ? hoveredNode.error : hoveredNode.matched_consensus ? 'Matches Consensus' : 'Divergent Answer'}
                 </span></div>
-                {hoveredNode.answers.length > 0 && (
+                {(hoveredNode.answers || []).length > 0 && (
                   <div className="truncate font-mono text-slate-300">
-                    Ans: {hoveredNode.answers.map((a: RecordInfo) => a.data).join(', ')}
+                    Ans: {(hoveredNode.answers || []).map((a: RecordInfo) => a.data).join(', ')}
                   </div>
                 )}
               </div>
@@ -374,7 +376,7 @@ export const PropagationMap: React.FC<PropagationMapProps> = ({ data, loading })
             </thead>
             <tbody className="divide-y divide-slate-800/60 font-mono">
               {filteredResults.map((node) => {
-                const answersStr = node.answers.map((a) => a.data).join(', ');
+                const answersStr = (node.answers || []).map((a) => a.data).join(', ');
                 const isSelected = selectedNodeId === node.provider.id;
                 return (
                   <tr

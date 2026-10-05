@@ -92,9 +92,14 @@ export const DnssecChain: React.FC<DnssecChainProps> = ({ data, loading }) => {
 
       {/* Trust Ladder Nodes */}
       <div className="space-y-4">
-        {data.chain.map((node, idx) => {
+        {(data.chain || []).map((node, idx) => {
           const isNodeSecure = node.status === 'SECURE';
           const isNodeBogus = node.status === 'BOGUS';
+          const algorithms = node.algorithms || [];
+          const kskTags = node.ksk_key_tags || [];
+          const zskTags = node.zsk_key_tags || [];
+          const errors = node.errors || [];
+          const warnings = node.warnings || [];
 
           return (
             <div
@@ -130,8 +135,8 @@ export const DnssecChain: React.FC<DnssecChainProps> = ({ data, loading }) => {
                   <span className="text-[10px] text-slate-500 uppercase tracking-wider block font-semibold">
                     Algorithms
                   </span>
-                  <span className="font-mono text-slate-200 block truncate" title={node.algorithms.join(', ')}>
-                    {node.algorithms.length > 0 ? node.algorithms.join(', ') : 'None'}
+                  <span className="font-mono text-slate-200 block truncate" title={algorithms.join(', ')}>
+                    {algorithms.length > 0 ? algorithms.join(', ') : 'None'}
                   </span>
                 </div>
 
@@ -141,9 +146,9 @@ export const DnssecChain: React.FC<DnssecChainProps> = ({ data, loading }) => {
                     Key Tags (KSK / ZSK)
                   </span>
                   <span className="font-mono text-slate-200 block break-all">
-                    {node.ksk_key_tags.length > 0 ? `KSK: ${node.ksk_key_tags.join(',')}` : ''}
-                    {node.zsk_key_tags.length > 0 ? ` | ZSK: ${node.zsk_key_tags.join(',')}` : ''}
-                    {node.ksk_key_tags.length === 0 && node.zsk_key_tags.length === 0 ? 'None' : ''}
+                    {kskTags.length > 0 ? `KSK: ${kskTags.join(',')}` : ''}
+                    {zskTags.length > 0 ? ` | ZSK: ${zskTags.join(',')}` : ''}
+                    {kskTags.length === 0 && zskTags.length === 0 ? 'None' : ''}
                   </span>
                 </div>
 
@@ -179,16 +184,16 @@ export const DnssecChain: React.FC<DnssecChainProps> = ({ data, loading }) => {
               </div>
 
               {/* Errors & Warnings */}
-              {node.errors.length > 0 && (
+              {errors.length > 0 && (
                 <div className="p-2.5 rounded bg-rose-950/40 border border-rose-900/60 text-xs text-rose-300 space-y-1">
-                  {node.errors.map((e, i) => (
+                  {errors.map((e, i) => (
                     <div key={i}>• {e}</div>
                   ))}
                 </div>
               )}
-              {node.warnings.length > 0 && (
+              {warnings.length > 0 && (
                 <div className="p-2.5 rounded bg-amber-950/40 border border-amber-900/60 text-xs text-amber-300 space-y-1">
-                  {node.warnings.map((w, i) => (
+                  {warnings.map((w, i) => (
                     <div key={i}>▲ {w}</div>
                   ))}
                 </div>

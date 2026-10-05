@@ -1,0 +1,204 @@
+const fs = require('fs');
+const path = require('path');
+const { Resvg } = require(path.join(__dirname, '../ui/node_modules/@resvg/resvg-js'));
+
+function buildLogoSvg() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <clipPath id="squircle-clip">
+      <rect x="24" y="24" width="976" height="976" rx="220" />
+    </clipPath>
+
+    <linearGradient id="cyan-glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f5ff"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+
+    <linearGradient id="amber-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+
+    <filter id="subtle-shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#0f172a" flood-opacity="0.14" />
+    </filter>
+  </defs>
+
+  <!-- Luxury White Squircle Container -->
+  <rect x="24" y="24" width="976" height="976" rx="220" fill="#ffffff" stroke="#e2e8f0" stroke-width="6" />
+
+  <g clip-path="url(#squircle-clip)">
+    <g transform="translate(512, 512)" filter="url(#subtle-shadow)">
+
+      <!-- Hexagonal Architectural Gateway Frame -->
+      <polygon points="
+        0,-390
+        338,-195
+        338,195
+        0,390
+        -338,195
+        -338,-195
+      " fill="none" stroke="#0f172a" stroke-width="36" stroke-linejoin="round" />
+
+      <polygon points="
+        0,-355
+        307,-177
+        307,177
+        0,355
+        -307,177
+        -307,-177
+      " fill="none" stroke="#00f5ff" stroke-width="4" opacity="0.4" stroke-dasharray="16, 12" />
+
+      <!-- Corner Telemetry Nodes -->
+      <circle cx="0" cy="-390" r="12" fill="#00f5ff" />
+      <circle cx="338" cy="-195" r="10" fill="#0f172a" stroke="#00f5ff" stroke-width="3" />
+      <circle cx="338" cy="195" r="10" fill="#0f172a" stroke="#00f5ff" stroke-width="3" />
+      <circle cx="0" cy="390" r="12" fill="#00f5ff" />
+      <circle cx="-338" cy="195" r="10" fill="#0f172a" stroke="#00f5ff" stroke-width="3" />
+      <circle cx="-338" cy="-195" r="10" fill="#0f172a" stroke="#00f5ff" stroke-width="3" />
+
+      <!-- ========================================================= -->
+      <!-- THE SENTINEL OWL (VIGILANT OBSERVER OF THE DOMAIN ROOT)    -->
+      <!-- ========================================================= -->
+
+      <!-- 1. Watertight Solid Base Silhouette -->
+      <path d="
+        M 0 -230
+        L 80 -210 L 210 -290 L 190 -130 L 260 -50 L 240 100 L 175 230 L 80 305 L 0 340
+        L -80 305 L -175 230 L -240 100 L -260 -50 L -190 -130 L -210 -290 L -80 -210 Z
+      " fill="#090d16" />
+
+      <!-- 2. Mantle & Lower Breast Armor (Bottom Layer) -->
+      <polygon points="0,120 75,220 0,340" fill="#1e293b" />
+      <polygon points="0,120 -75,220 0,340" fill="#0f172a" />
+
+      <polygon points="75,220 175,230 80,305 0,340" fill="#0b0f19" />
+      <polygon points="-75,220 -175,230 -80,305 0,340" fill="#1e293b" />
+
+      <polygon points="75,220 160,140 175,230" fill="#334155" />
+      <polygon points="-75,220 -160,140 -175,230" fill="#0f172a" />
+
+      <!-- Mid Chest Triangular Keel Plate -->
+      <polygon points="0,120 75,220 0,205" fill="#334155" />
+      <polygon points="0,120 -75,220 0,205" fill="#1e293b" />
+
+      <!-- 3. Facial Disc & Cheek Facets (Mid Layer) -->
+      <polygon points="0,120 135,110 160,140 75,220" fill="#1e293b" />
+      <polygon points="0,120 -135,110 -160,140 -75,220" fill="#334155" />
+
+      <polygon points="135,110 240,100 160,140" fill="#0f172a" />
+      <polygon points="-135,110 -240,100 -160,140" fill="#1e293b" />
+
+      <!-- Outer Temporal Wings -->
+      <polygon points="135,110 220,10 240,100" fill="#334155" />
+      <polygon points="-135,110 -220,10 -240,100" fill="#0f172a" />
+
+      <polygon points="135,20 260,-50 220,10" fill="#1e293b" />
+      <polygon points="-135,20 -260,-50 -220,10" fill="#334155" />
+
+      <!-- Ear Tufts / Horn Crest (Apex) -->
+      <!-- Left Ear (Viewer Left) -->
+      <polygon points="-80,-210 -210,-290 -140,-155" fill="#1e293b" />
+      <polygon points="-210,-290 -190,-130 -140,-155" fill="#0f172a" />
+      <polygon points="-190,-130 -260,-50 -140,-155" fill="#334155" />
+
+      <!-- Right Ear (Viewer Right) -->
+      <polygon points="80,-210 210,-290 140,-155" fill="#334155" />
+      <polygon points="210,-290 190,-130 140,-155" fill="#475569" />
+      <polygon points="190,-130 260,-50 140,-155" fill="#1e293b" />
+
+      <!-- Crown Forehead Central Crest -->
+      <polygon points="0,-230 -80,-210 0,-155" fill="#0f172a" />
+      <polygon points="0,-230 80,-210 0,-155" fill="#334155" />
+
+      <polygon points="-80,-210 -140,-155 0,-155" fill="#1e293b" />
+      <polygon points="80,-210 140,-155 0,-155" fill="#475569" />
+
+      <!-- Fierce Predatory Brow Ridge (Heavy Angular Eyebrows) -->
+      <polygon points="0,-155 -140,-155 -150,-70 0,-95" fill="#1e293b" />
+      <polygon points="0,-155 140,-155 150,-70 0,-95" fill="#475569" />
+
+      <!-- Brow Overhang Shields (Sharp predatory angle sloping down to center) -->
+      <polygon points="0,-95 -150,-70 -85,-50 0,-40" fill="#334155" />
+      <polygon points="0,-95 150,-70 85,-50 0,-40" fill="#64748b" />
+
+      <!-- ========================================================= -->
+      <!-- 4. PREDATORY ALMOND OPTICS (THE VIGILANT SENTINEL EYES)    -->
+      <!-- ========================================================= -->
+
+      <!-- Left Eye Dark Recessed Socket -->
+      <polygon points="-150,-70 -160,-20 -95,20 -35,-20 -85,-50" fill="#050811" />
+
+      <!-- Left Eye Fierce Almond Sclera & Iris (Slanted upward toward ears) -->
+      <polygon points="-142,-55 -150,-25 -105,10 -48,-22 -92,-42" fill="url(#cyan-glow)" stroke="#00f5ff" stroke-width="1.5" />
+
+      <!-- Left Eye Sharp Slit Pupil & Reticle -->
+      <polygon points="-102,-45 -106,-15 -96,5 -92,-25" fill="#050811" />
+      <polygon points="-101,-38 -104,-20 -97,-5 -94,-23" fill="#ffffff" opacity="0.9" />
+
+      <!-- Right Eye Dark Recessed Socket -->
+      <polygon points="150,-70 160,-20 95,20 35,-20 85,-50" fill="#050811" />
+
+      <!-- Right Eye Fierce Almond Sclera & Iris (Slanted upward toward ears) -->
+      <polygon points="142,-55 150,-25 105,10 48,-22 92,-42" fill="url(#cyan-glow)" stroke="#00f5ff" stroke-width="1.5" />
+
+      <!-- Right Eye Sharp Slit Pupil & Reticle -->
+      <polygon points="102,-45 106,-15 96,5 92,-25" fill="#050811" />
+      <polygon points="101,-38 104,-20 97,-5 94,-23" fill="#ffffff" opacity="0.9" />
+
+      <!-- ========================================================= -->
+      <!-- 5. CHISELED GEOMETRIC BEAK (CENTRAL FOCAL PIN)             -->
+      <!-- ========================================================= -->
+
+      <!-- Beak Base Bridge -->
+      <polygon points="0,-40 -35,-20 0,20" fill="#1e293b" />
+      <polygon points="0,-40 35,-20 0,20" fill="#334155" />
+
+      <!-- Beak Upper Facets -->
+      <polygon points="0,20 -28,30 0,85" fill="#0f172a" />
+      <polygon points="0,20 28,30 0,85" fill="#1e293b" />
+
+      <!-- Sharp Downward Talon Tip (Amber Gold Accent) -->
+      <polygon points="0,85 -18,70 0,120" fill="#b45309" />
+      <polygon points="0,85 18,70 0,120" fill="url(#amber-gold)" />
+
+      <!-- Lateral Whisker/Cheek Plates Under Eyes -->
+      <polygon points="-35,-20 -95,20 -135,110 0,120" fill="#1e293b" />
+      <polygon points="35,-20 95,20 135,110 0,120" fill="#334155" />
+
+      <!-- Center Chest Telemetry Emblem (DNS Pulse Core) -->
+      <polygon points="0,185 24,208 0,230 -24,208" fill="none" stroke="#00f5ff" stroke-width="3" />
+      <circle cx="0" cy="208" r="4.5" fill="#00f5ff" />
+
+    </g>
+  </g>
+</svg>`;
+}
+
+async function render() {
+  const outputDir = path.join(__dirname, '../docs/images');
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir, { recursive: true });
+  }
+
+  const svg = buildLogoSvg();
+  const svgPath = path.join(outputDir, 'logo.svg');
+  const pngPath = path.join(outputDir, 'logo.png');
+
+  fs.writeFileSync(svgPath, svg, 'utf8');
+
+  const resvg = new Resvg(svg, {
+    fitTo: { mode: 'width', value: 1024 }
+  });
+  const pngData = resvg.render().asPng();
+  fs.writeFileSync(pngPath, pngData);
+
+  console.log('✓ Successfully rendered official logo:');
+  console.log('  - ' + svgPath);
+  console.log('  - ' + pngPath);
+}
+
+render().catch(err => {
+  console.error('Failed to render logo:', err);
+  process.exit(1);
+});

@@ -66,9 +66,10 @@ export const AuditReport: React.FC<AuditReportProps> = ({ data, loading }) => {
     setTimeout(() => setCopiedIdx(null), 2000);
   };
 
+  const findingsList = data.findings || [];
   const filteredFindings = filterSeverity === 'ALL'
-    ? data.findings
-    : data.findings.filter((f) => f.severity === filterSeverity);
+    ? findingsList
+    : findingsList.filter((f) => f.severity === filterSeverity);
 
   return (
     <div className="space-y-6">

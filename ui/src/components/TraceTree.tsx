@@ -91,7 +91,7 @@ export const TraceTree: React.FC<TraceTreeProps> = ({ data, loading }) => {
 
       {/* Hops tree list */}
       <div className="relative pl-6 sm:pl-7 space-y-5 sm:space-y-6 before:absolute before:left-2 before:top-4 before:bottom-4 before:w-0.5 before:bg-gradient-to-b before:from-indigo-500 before:via-sky-500 before:to-emerald-500">
-        {data.hops.map((hop) => (
+        {(data.hops || []).map((hop) => (
           <div key={hop.step} className="relative group">
             {/* Step marker */}
             <div className="absolute -left-[24px] sm:-left-[27px] top-3.5 w-5 h-5 rounded-full bg-slate-900 border-2 border-indigo-500 flex items-center justify-center text-[10px] font-bold text-indigo-300 shadow-md">
@@ -128,13 +128,13 @@ export const TraceTree: React.FC<TraceTreeProps> = ({ data, loading }) => {
 
               {/* Flags */}
               <div className="flex flex-wrap gap-1.5 mb-2.5">
-                {hop.flags.rd && (
+                {hop.flags?.rd && (
                   <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">RD</span>
                 )}
-                {hop.flags.ra && (
+                {hop.flags?.ra && (
                   <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">RA</span>
                 )}
-                {hop.flags.tc && (
+                {hop.flags?.tc && (
                   <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-900 text-amber-300">TC</span>
                 )}
                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800/80 text-slate-400">

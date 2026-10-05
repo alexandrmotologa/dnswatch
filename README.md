@@ -1,4 +1,23 @@
-# DNSWatch
+<p align="center">
+  <img src="docs/images/logo.png?raw=true" alt="DNSWatch Sentinel Logo" width="130" style="border-radius: 26px;" />
+</p>
+
+<h1 align="center">DNSWatch</h1>
+
+<p align="center">
+  <strong>Interactive terminal TUI & local web studio for recursive DNS tracing, DNSSEC validation, and global edge propagation.</strong>
+</p>
+
+<p align="center">
+  <a href="https://golang.org"><img src="https://img.shields.io/badge/Go-1.22+-00ADD8?style=flat-square&logo=go" alt="Go"></a>
+  <a href="https://react.dev"><img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react" alt="React"></a>
+  <a href="https://github.com/alexandrmotologa/dnswatch/actions"><img src="https://img.shields.io/github/actions/workflow/status/alexandrmotologa/dnswatch/ci.yml?style=flat-square&label=CI" alt="CI"></a>
+  <a href="https://github.com/alexandrmotologa/dnswatch/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="License"></a>
+</p>
+
+<p align="center">
+  <img src="docs/images/dnswatch_demo.gif?raw=true" alt="DNSWatch Studio Animated Demo" width="100%" style="border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);" />
+</p>
 
 DNSWatch is an interactive terminal TUI and local web studio for recursive DNS tracing, DNSSEC validation, and global edge propagation. It compiles into a single Go binary with an embedded React web interface.
 
@@ -108,7 +127,15 @@ Start the embedded web application:
 dnswatch serve --port 50080
 ```
 
-Open http://localhost:50080 in your browser to inspect interactive SVG delegation trees, global propagation charts with world map pins, DNSSEC trust diagrams, and download portable HTML/JSON reports.
+Open `http://localhost:50080` in your browser to inspect interactive SVG delegation trees, global propagation charts with world map pins, DNSSEC trust diagrams, and download portable HTML/JSON reports.
+
+#### Web Studio Views
+
+| **Recursive Delegation Trace** | **Worldwide Edge Propagation Map** |
+|:---:|:---:|
+| <img src="docs/images/screenshot_trace.png?raw=true" alt="Recursive Delegation Trace" width="100%" style="border-radius: 8px;" /> | <img src="docs/images/screenshot_propagation.png?raw=true" alt="Global Edge Propagation Map" width="100%" style="border-radius: 8px;" /> |
+| **DNSSEC Trust Ladder Validation** | **Domain Health & Security Hygiene Audit** |
+| <img src="docs/images/screenshot_dnssec.png?raw=true" alt="DNSSEC Chain Validation" width="100%" style="border-radius: 8px;" /> | <img src="docs/images/screenshot_audit.png?raw=true" alt="Domain Health and Security Audit" width="100%" style="border-radius: 8px;" /> |
 
 ## Architecture
 
