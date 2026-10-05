@@ -1,9 +1,8 @@
 # Binaries
 bin/
-dist/
-dnswatch
-dnswatch.exe
-*.exe
+/dist/
+/dnswatch
+/dnswatch.exe
 *.test
 *.prof
 

@@ -1,0 +1,48 @@
+name: CI & Cross-Platform Release Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-and-build:
+    name: Test & Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: 'ui/package-lock.json'
+
+      - name: Install UI Dependencies & Build Web Studio
+        run: |
+          cd ui
+          npm ci || npm install
+          npm run build
+
+      - name: Verify Go Module Dependencies
+        run: go mod tidy && git diff --exit-code go.mod go.sum
+
+      - name: Run Go Unit & Integration Tests
+        run: go test -v -race ./...
+
+      - name: Build Standalone Binary (Linux amd64)
+        run: go build -ldflags="-s -w" -o bin/dnswatch ./cmd/dnswatch
+
+      - name: Build Windows amd64 Binary
+        run: GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o bin/dnswatch-windows-amd64.exe ./cmd/dnswatch
+
+      - name: Build macOS Apple Silicon Binary
+        run: GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w" -o bin/dnswatch-darwin-arm64 ./cmd/dnswatch

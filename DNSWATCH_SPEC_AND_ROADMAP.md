@@ -210,44 +210,50 @@ dnswatch/
 ## 6. Implementation Roadmap
 
 ### Phase 1: Go Module Setup & Core DNS Protocol Client
-- [ ] 1.1 Initialize Go module `github.com/alexandrmotologa/dnswatch` and configure dependencies (`miekg/dns`, `charmbracelet/bubbletea`, `cobra`, `chi`).
-- [ ] 1.2 Implement `pkg/resolver/client.go` supporting UDP, TCP, and DoH (DNS-over-HTTPS) resolution.
-- [ ] 1.3 Implement `pkg/trace/root_hints.go` embedding IANA root server IP addresses (`a.root-servers.net` to `m.root-servers.net`).
-- [ ] 1.4 Implement `pkg/trace/walker.go` performing step-by-step recursive delegation walking from Root to Authoritative.
-- [ ] 1.5 Write automated tests verifying recursive resolution against well-known public domains.
+- [x] 1.1 Initialize Go module `github.com/alexandrmotologa/dnswatch` and configure dependencies (`miekg/dns`, `charmbracelet/bubbletea`, `cobra`, `chi`).
+- [x] 1.2 Implement `pkg/resolver/client.go` supporting UDP, TCP, DoH (DNS-over-HTTPS), and DoT (DNS-over-TLS RFC 7858).
+- [x] 1.3 Implement `pkg/trace/root_hints.go` embedding IANA root server IP addresses (`a.root-servers.net` to `m.root-servers.net`).
+- [x] 1.4 Implement `pkg/trace/walker.go` performing step-by-step recursive delegation walking from Root to Authoritative.
+- [x] 1.5 Write automated tests verifying recursive resolution against well-known public domains.
 
 ### Phase 2: Global Propagation Engine
-- [ ] 2.1 Implement `pkg/propagation/providers.go` registering 25+ global DoH endpoints with geographic metadata.
-- [ ] 2.2 Implement concurrent worker pool in `runner.go` querying all providers simultaneously with strict timeouts.
-- [ ] 2.3 Implement `matrix.go` computing consensus IP distribution and propagation percentage.
-- [ ] 2.4 Write unit tests simulating partial propagation scenarios and verifying consensus math.
+- [x] 2.1 Implement `pkg/propagation/providers.go` registering 25+ global DoH endpoints with geographic metadata.
+- [x] 2.2 Implement concurrent worker pool in `runner.go` querying all providers simultaneously with strict timeouts.
+- [x] 2.3 Implement `matrix.go` computing consensus IP distribution and propagation percentage.
+- [x] 2.4 Write unit tests simulating partial propagation scenarios and verifying consensus math.
 
 ### Phase 3: DNSSEC Cryptographic Trust Chain Validator
-- [ ] 3.1 Implement Root trust anchor verification (`.` zone).
-- [ ] 3.2 Implement `pkg/dnssec/ds.go` verifying parent `DS` hashes against child `DNSKEY` records (SHA-1, SHA-256).
-- [ ] 3.3 Implement `pkg/dnssec/rrsig.go` validating `RRSIG` signatures and checking inception/expiration validity windows.
-- [ ] 3.4 Build structured `ChainNode` graph output representing the complete cryptographic ladder.
-- [ ] 3.5 Write tests against known DNSSEC-enabled domains (`cloudflare.com`, `internic.net`) and known broken domains (`dnssec-failed.org`).
+- [x] 3.1 Implement Root trust anchor verification (`.` zone).
+- [x] 3.2 Implement `pkg/dnssec/ds.go` verifying parent `DS` hashes against child `DNSKEY` records (SHA-1, SHA-256).
+- [x] 3.3 Implement `pkg/dnssec/rrsig.go` validating `RRSIG` signatures and checking inception/expiration validity windows.
+- [x] 3.4 Build structured `ChainNode` graph output representing the complete cryptographic ladder.
+- [x] 3.5 Write tests against known DNSSEC-enabled domains (`cloudflare.com`, `internic.net`) and known broken domains (`dnssec-failed.org`).
 
 ### Phase 4: Domain Health & Security Auditor
-- [ ] 4.1 Implement `pkg/audit/email.go` parsing and validating SPF records (syntax, mechanism count, `+all` warnings).
-- [ ] 4.2 Implement DMARC policy evaluator inspecting `p=reject`, `p=quarantine`, and reporting tags.
-- [ ] 4.3 Implement `pkg/audit/takeover.go` with fingerprint database for unclaimed cloud provider CNAMEs.
-- [ ] 4.4 Implement authoritative nameserver consistency checker verifying that all listed NS servers return identical serials.
+- [x] 4.1 Implement `pkg/audit/email.go` parsing and validating SPF records (syntax, mechanism count, `+all` warnings, lookup limits).
+- [x] 4.2 Implement DMARC policy evaluator inspecting `p=reject`, `p=quarantine`, reporting tags (`rua`), and MX reachability.
+- [x] 4.3 Implement `pkg/audit/takeover.go` with fingerprint database for unclaimed cloud provider CNAMEs (GitHub, AWS, Vercel, Netlify, etc.).
+- [x] 4.4 Implement authoritative nameserver consistency checker verifying that all listed NS servers return identical serials.
 
 ### Phase 5: Terminal TUI (Bubbletea + Lipgloss)
-- [ ] 5.1 Implement Bubbletea application shell with 4 tabs: `Trace`, `Propagation`, `DNSSEC`, `Audit`.
-- [ ] 5.2 Build `view_trace.go` rendering clean ASCII tree hierarchy with color-coded latency indicators.
-- [ ] 5.3 Build `view_propagation.go` rendering global geographic table with live status checkmarks.
-- [ ] 5.4 Build `view_dnssec.go` rendering verified trust badges.
-- [ ] 5.5 Support keyboard navigation (`Tab` for switching views, `q` for quit, `/` for search).
+- [x] 5.1 Implement Bubbletea application shell with 4 tabs: `Trace`, `Propagation`, `DNSSEC`, `Audit`.
+- [x] 5.2 Build `view_trace.go` rendering clean ASCII tree hierarchy with color-coded latency indicators.
+- [x] 5.3 Build `view_propagation.go` rendering global geographic table with live status checkmarks.
+- [x] 5.4 Build `view_dnssec.go` rendering verified trust badges.
+- [x] 5.5 Support keyboard navigation (`Tab` for switching views, `q` for quit, `/` for search, `t` for record type).
 
 ### Phase 6: Embedded Web Studio & Single-Binary Delivery
-- [ ] 6.1 Scaffold Vite + React 19 + TypeScript in `ui/`.
-- [ ] 6.2 Build interactive SVG Trace Tree component and Global Propagation Map.
-- [ ] 6.3 Implement REST API in `pkg/server/` exposing all resolution, propagation, and DNSSEC endpoints.
-- [ ] 6.4 Embed frontend static bundle into the Go binary using `go:embed`.
-- [ ] 6.5 Package single-binary release with zero external runtime requirements across macOS, Linux, and Windows.
+- [x] 6.1 Scaffold Vite + React 19 + TypeScript in `ui/`.
+- [x] 6.2 Build interactive SVG Trace Tree component, Global Propagation Map, DNSSEC Visualizer, and Audit Scorecard.
+- [x] 6.3 Implement REST API in `pkg/server/` exposing all resolution, propagation, and DNSSEC endpoints.
+- [x] 6.4 Embed frontend static bundle into the Go binary using `go:embed`.
+- [x] 6.5 Package single-binary release with zero external runtime requirements across macOS, Linux, and Windows.
+
+### Architectural Additions & Enhancements Implemented
+- [x] Added RFC 7858 DNS-over-TLS client (`pkg/resolver/dot.go`) on port 853 with TLS 1.2+ and SNI validation.
+- [x] Extended takeover detector with fingerprints covering 14 cloud providers (Vercel, Netlify, Cloudflare Pages, S3, Heroku, Shopify, Ghost, Surge, Bitbucket, Fastly, WordPress, Zendesk, Azure).
+- [x] Added automated GitHub Actions workflow (`.github/workflows/ci.yml`) for multi-platform compilation and test enforcement.
+- [x] Added `--fail-on-errors` and `--fail-on-bogus` CLI flags for automated CI/CD pipeline blocking.
 
 ---
 
