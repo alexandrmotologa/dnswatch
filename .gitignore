@@ -1,0 +1,30 @@
+# Binaries
+bin/
+dist/
+dnswatch
+dnswatch.exe
+*.exe
+*.test
+*.prof
+
+# Node & UI
+node_modules/
+ui/dist/
+ui/node_modules/
+.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment and OS
+.DS_Store
+Thumbs.db
+*.swp
+*.bak
+.idea/
+.vscode/
+
+# Build artifacts
+coverage.out
+coverage.html
+tmp/
