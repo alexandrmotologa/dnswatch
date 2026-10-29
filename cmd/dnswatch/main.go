@@ -72,10 +72,15 @@ func parseRecordType(qtypeStr string) uint16 {
 	return dns.TypeA
 }
 
+func isJSONOutput(jsonFlag bool, formatFlag string) bool {
+	return jsonFlag || strings.EqualFold(formatFlag, "json")
+}
+
 // 1. Trace command
 var (
-	traceType string
-	traceJSON bool
+	traceType   string
+	traceJSON   bool
+	traceFormat string
 )
 
 var traceCmd = &cobra.Command{
@@ -95,7 +100,7 @@ var traceCmd = &cobra.Command{
 			return err
 		}
 
-		if traceJSON {
+		if isJSONOutput(traceJSON, traceFormat) {
 			enc := json.NewEncoder(os.Stdout)
 			enc.SetIndent("", "  ")
 			return enc.Encode(res)
@@ -144,8 +149,9 @@ var traceCmd = &cobra.Command{
 
 // 2. Propagate command
 var (
-	propType string
-	propJSON bool
+	propType   string
+	propJSON   bool
+	propFormat string
 )
 
 var propCmd = &cobra.Command{
@@ -165,7 +171,7 @@ var propCmd = &cobra.Command{
 			return err
 		}
 
-		if propJSON {
+		if isJSONOutput(propJSON, propFormat) {
 			enc := json.NewEncoder(os.Stdout)
 			enc.SetIndent("", "  ")
 			return enc.Encode(summary)
@@ -211,9 +217,10 @@ var propCmd = &cobra.Command{
 
 // 3. DNSSEC command
 var (
-	dnssecType string
-	dnssecJSON bool
-	failOnBogus bool
+	dnssecType   string
+	dnssecJSON   bool
+	dnssecFormat string
+	failOnBogus  bool
 )
 
 var dnssecCmd = &cobra.Command{
@@ -233,7 +240,7 @@ var dnssecCmd = &cobra.Command{
 			return err
 		}
 
-		if dnssecJSON {
+		if isJSONOutput(dnssecJSON, dnssecFormat) {
 			enc := json.NewEncoder(os.Stdout)
 			enc.SetIndent("", "  ")
 			return enc.Encode(res)
@@ -276,6 +283,7 @@ var dnssecCmd = &cobra.Command{
 // 4. Audit command
 var (
 	auditJSON        bool
+	auditFormat      string
 	auditFailOnError bool
 )
 
@@ -294,7 +302,7 @@ var auditCmd = &cobra.Command{
 			return err
 		}
 
-		if auditJSON {
+		if isJSONOutput(auditJSON, auditFormat) {
 			enc := json.NewEncoder(os.Stdout)
 			enc.SetIndent("", "  ")
 			return enc.Encode(report)
@@ -455,6 +463,7 @@ var (
 	diffNS2      string
 	diffResolver string
 	diffJSON     bool
+	diffFormat   string
 )
 
 var diffCmd = &cobra.Command{
@@ -483,7 +492,7 @@ var diffCmd = &cobra.Command{
 			return err
 		}
 
-		if diffJSON {
+		if isJSONOutput(diffJSON, diffFormat) {
 			enc := json.NewEncoder(os.Stdout)
 			enc.SetIndent("", "  ")
 			return enc.Encode(report)
@@ -528,6 +537,7 @@ var (
 	benchType   string
 	benchRounds int
 	benchJSON   bool
+	benchFormat string
 )
 
 var benchCmd = &cobra.Command{
@@ -547,7 +557,7 @@ var benchCmd = &cobra.Command{
 			return err
 		}
 
-		if benchJSON {
+		if isJSONOutput(benchJSON, benchFormat) {
 			enc := json.NewEncoder(os.Stdout)
 			enc.SetIndent("", "  ")
 			return enc.Encode(report)
@@ -587,19 +597,25 @@ func init() {
 	// Trace flags
 	traceCmd.Flags().StringVarP(&traceType, "type", "t", "A", "DNS record type (A, AAAA, CNAME, MX, TXT, NS, SOA, CAA)")
 	traceCmd.Flags().BoolVar(&traceJSON, "json", false, "Output results in JSON format")
+	traceCmd.Flags().StringVar(&traceFormat, "format", "table", "Output format (table, json)")
 
 	// Propagate flags
 	propCmd.Flags().StringVarP(&propType, "type", "t", "A", "DNS record type")
 	propCmd.Flags().BoolVar(&propJSON, "json", false, "Output results in JSON format")
+	propCmd.Flags().StringVar(&propFormat, "format", "table", "Output format (table, json)")
 
 	// DNSSEC flags
 	dnssecCmd.Flags().StringVarP(&dnssecType, "type", "t", "A", "DNS record type")
 	dnssecCmd.Flags().BoolVar(&dnssecJSON, "json", false, "Output results in JSON format")
+	dnssecCmd.Flags().StringVar(&dnssecFormat, "format", "table", "Output format (table, json)")
 	dnssecCmd.Flags().BoolVar(&failOnBogus, "fail-on-bogus", false, "Exit with code 1 if DNSSEC validation is BOGUS")
+	dnssecCmd.Flags().BoolVar(&failOnBogus, "fail-on-error", false, "Exit with code 1 if DNSSEC validation is BOGUS (alias)")
 
 	// Audit flags
 	auditCmd.Flags().BoolVar(&auditJSON, "json", false, "Output audit results in JSON format")
+	auditCmd.Flags().StringVar(&auditFormat, "format", "table", "Output format (table, json)")
 	auditCmd.Flags().BoolVar(&auditFailOnError, "fail-on-errors", false, "Exit with code 1 on poor grade (D/F) or takeover risk")
+	auditCmd.Flags().BoolVar(&auditFailOnError, "fail-on-error", false, "Exit with code 1 on poor grade (D/F) or takeover risk (alias)")
 
 	// Serve flags
 	serveCmd.Flags().IntVarP(&servePort, "port", "p", 50080, "HTTP port for web studio")
@@ -616,11 +632,13 @@ func init() {
 	diffCmd.Flags().StringVar(&diffNS2, "ns2", "", "Second nameserver for single domain diff")
 	diffCmd.Flags().StringVar(&diffResolver, "resolver", "1.1.1.1:53", "Common resolver for two domain diff")
 	diffCmd.Flags().BoolVar(&diffJSON, "json", false, "Output results in JSON format")
+	diffCmd.Flags().StringVar(&diffFormat, "format", "table", "Output format (table, json)")
 
 	// Benchmark flags
 	benchCmd.Flags().StringVarP(&benchType, "type", "t", "A", "DNS record type")
 	benchCmd.Flags().IntVarP(&benchRounds, "rounds", "r", 3, "Number of query rounds per resolver")
 	benchCmd.Flags().BoolVar(&benchJSON, "json", false, "Output results in JSON format")
+	benchCmd.Flags().StringVar(&benchFormat, "format", "table", "Output format (table, json)")
 
 	// Register subcommands
 	rootCmd.AddCommand(traceCmd)

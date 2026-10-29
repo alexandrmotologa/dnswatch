@@ -1,21 +1,25 @@
 name: 'DNSWatch Action'
-description: 'Automated DNS recursive tracing, DNSSEC validation, global edge propagation, and security hygiene auditing.'
+description: 'Automated recursive DNS tracing, DNSSEC validation, global edge propagation, and domain security auditing.'
 author: 'Alexandr Motologa'
 
 branding:
   icon: 'globe'
-  color: 'indigo'
+  color: 'blue'
 
 inputs:
   command:
-    description: 'Subcommand to execute (audit, trace, propagate, dnssec, diff, bench)'
+    description: 'DNSWatch subcommand to execute (audit, trace, propagate, dnssec, diff, bench)'
     required: false
     default: 'audit'
   domain:
-    description: 'Target domain name to analyze'
+    description: 'Primary domain name to analyze'
     required: true
+  target2:
+    description: 'Second domain or nameserver for diff command'
+    required: false
+    default: ''
   type:
-    description: 'DNS query type (A, AAAA, MX, TXT, CNAME, etc.)'
+    description: 'DNS query record type (A, AAAA, MX, TXT, CNAME, NS, SOA, CAA)'
     required: false
     default: 'A'
   format:
@@ -23,9 +27,21 @@ inputs:
     required: false
     default: 'table'
   fail_on_error:
-    description: 'Fail step if DNSSEC is bogus or audit score is below threshold'
+    description: 'Fail step if DNSSEC validation is bogus or audit score is below threshold (D/F or takeover risk)'
     required: false
     default: 'true'
+  args:
+    description: 'Additional custom CLI arguments passed to dnswatch'
+    required: false
+    default: ''
+
+outputs:
+  output:
+    description: 'Standard output of the executed DNSWatch command'
+    value: ${{ steps.run-dnswatch.outputs.output }}
+  status:
+    description: 'Execution status (success or failure)'
+    value: ${{ steps.run-dnswatch.outputs.status }}
 
 runs:
   using: 'composite'
@@ -34,29 +50,80 @@ runs:
       uses: actions/setup-go@v5
       with:
         go-version: '>=1.22'
-        cache: true
 
     - name: Run DNSWatch Command
+      id: run-dnswatch
       shell: bash
       run: |
+        set -e
+        ACTION_DIR="${{ github.action_path }}"
         CMD="${{ inputs.command }}"
         DOMAIN="${{ inputs.domain }}"
+        TARGET2="${{ inputs.target2 }}"
         TYPE="${{ inputs.type }}"
         FORMAT="${{ inputs.format }}"
+        FAIL_ON_ERROR="${{ inputs.fail_on_error }}"
+        EXTRA_ARGS="${{ inputs.args }}"
 
-        echo "Executing DNSWatch: $CMD for $DOMAIN ($TYPE)..."
+        CLI_ARGS=()
 
-        if [ "$CMD" = "audit" ]; then
-          go run ./cmd/dnswatch audit "$DOMAIN" --format="$FORMAT"
-        elif [ "$CMD" = "trace" ]; then
-          go run ./cmd/dnswatch trace "$DOMAIN" --type="$TYPE" --format="$FORMAT"
-        elif [ "$CMD" = "propagate" ]; then
-          go run ./cmd/dnswatch propagate "$DOMAIN" --type="$TYPE" --format="$FORMAT"
-        elif [ "$CMD" = "dnssec" ]; then
-          go run ./cmd/dnswatch dnssec "$DOMAIN" --type="$TYPE" --format="$FORMAT"
-        elif [ "$CMD" = "bench" ]; then
-          go run ./cmd/dnswatch bench "$DOMAIN"
-        else
-          echo "Unknown command: $CMD"
-          exit 1
+        if [ "$CMD" = "trace" ] || [ "$CMD" = "propagate" ] || [ "$CMD" = "dnssec" ] || [ "$CMD" = "bench" ]; then
+          if [ -n "$TYPE" ]; then
+            CLI_ARGS+=("--type" "$TYPE")
+          fi
         fi
+
+        if [ "$FORMAT" = "json" ]; then
+          CLI_ARGS+=("--format" "json")
+        fi
+
+        if [ "$FAIL_ON_ERROR" = "true" ]; then
+          if [ "$CMD" = "audit" ]; then
+            CLI_ARGS+=("--fail-on-errors")
+          elif [ "$CMD" = "dnssec" ]; then
+            CLI_ARGS+=("--fail-on-bogus")
+          fi
+        fi
+
+        if [ -n "$EXTRA_ARGS" ]; then
+          # shellcheck disable=SC2086
+          CLI_ARGS+=($EXTRA_ARGS)
+        fi
+
+        CLI_ARGS+=("$DOMAIN")
+        if [ -n "$TARGET2" ]; then
+          CLI_ARGS+=("$TARGET2")
+        fi
+
+        echo "Executing DNSWatch: $CMD ${CLI_ARGS[*]}"
+
+        cd "$ACTION_DIR"
+        BIN_EXT=""
+        if [ "$RUNNER_OS" = "Windows" ]; then
+          BIN_EXT=".exe"
+        fi
+
+        TARGET_DIR="${RUNNER_TEMP:-/tmp}"
+        BIN_PATH="$TARGET_DIR/dnswatch$BIN_EXT"
+
+        go build -ldflags="-s -w" -o "$BIN_PATH" ./cmd/dnswatch
+
+        set +e
+        OUTPUT=$("$BIN_PATH" "$CMD" "${CLI_ARGS[@]}")
+        EXIT_CODE=$?
+        set -e
+
+        echo "$OUTPUT"
+
+        EOF=$(openssl rand -hex 8 2>/dev/null || date +%s%N)
+        echo "output<<$EOF" >> "$GITHUB_OUTPUT"
+        echo "$OUTPUT" >> "$GITHUB_OUTPUT"
+        echo "$EOF" >> "$GITHUB_OUTPUT"
+
+        if [ $EXIT_CODE -eq 0 ]; then
+          echo "status=success" >> "$GITHUB_OUTPUT"
+        else
+          echo "status=failure" >> "$GITHUB_OUTPUT"
+        fi
+
+        exit $EXIT_CODE

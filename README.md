@@ -11,6 +11,7 @@
 <p align="center">
   <a href="https://golang.org"><img src="https://img.shields.io/badge/Go-1.22+-00ADD8?style=flat-square&logo=go" alt="Go"></a>
   <a href="https://react.dev"><img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react" alt="React"></a>
+  <a href="https://github.com/marketplace/actions/dnswatch-action"><img src="https://img.shields.io/badge/Marketplace-DNSWatch-blue?style=flat-square&logo=githubactions" alt="GitHub Marketplace"></a>
   <a href="https://github.com/alexandrmotologa/dnswatch/actions"><img src="https://img.shields.io/github/actions/workflow/status/alexandrmotologa/dnswatch/ci.yml?style=flat-square&label=CI" alt="CI"></a>
   <a href="https://github.com/alexandrmotologa/dnswatch/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="License"></a>
 </p>
@@ -52,18 +53,65 @@ Run DNSWatch in a container (<15MB minimal image):
 docker run -p 8080:8080 ghcr.io/alexandrmotologa/dnswatch:latest
 ```
 
-### GitHub Actions
+### GitHub Action
 
-Integrate DNSWatch directly into CI/CD pipelines to enforce domain hygiene and valid DNSSEC:
+Run DNSWatch in CI/CD pipelines to audit domain security, verify DNSSEC trust chains, or track global edge propagation.
 
 ```yaml
 - name: Audit Domain Health
-  uses: alexandrmotologa/dnswatch@main
+  uses: alexandrmotologa/dnswatch@v1
   with:
     command: audit
     domain: example.com
     fail_on_error: true
 ```
+
+#### Workflow Examples
+
+```yaml
+# Enforce valid DNSSEC signatures before deployment
+- name: Validate DNSSEC
+  uses: alexandrmotologa/dnswatch@v1
+  with:
+    command: dnssec
+    domain: example.com
+    fail_on_error: true
+
+# Check worldwide edge propagation across 25+ DoH resolvers
+- name: Verify Global Edge Propagation
+  uses: alexandrmotologa/dnswatch@v1
+  with:
+    command: propagate
+    domain: example.com
+    type: A
+    format: json
+
+# Trace recursive delegation from root hints to authoritative nameservers
+- name: Trace DNS Hierarchy
+  uses: alexandrmotologa/dnswatch@v1
+  with:
+    command: trace
+    domain: example.com
+```
+
+#### Inputs
+
+| Input | Required | Default | Description |
+|---|---|---|---|
+| `domain` | Yes | - | Primary domain to inspect |
+| `command` | No | `audit` | Command to run: `audit`, `trace`, `propagate`, `dnssec`, `diff`, `bench` |
+| `type` | No | `A` | Query record type (`A`, `AAAA`, `MX`, `TXT`, `CNAME`, `NS`, `SOA`, `CAA`) |
+| `format` | No | `table` | Output format (`table` or `json`) |
+| `fail_on_error` | No | `true` | Exit with failure code if DNSSEC is bogus or health grade is D/F |
+| `target2` | No | `""` | Second domain or server target for `diff` |
+| `args` | No | `""` | Additional flags passed directly to dnswatch |
+
+#### Outputs
+
+| Output | Description |
+|---|---|
+| `output` | Standard output text or JSON payload from dnswatch |
+| `status` | Command completion status (`success` or `failure`) |
 
 ## Quick Start
 

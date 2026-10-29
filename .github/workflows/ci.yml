@@ -46,3 +46,26 @@ jobs:
 
       - name: Build macOS Apple Silicon Binary
         run: GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w" -o bin/dnswatch-darwin-arm64 ./cmd/dnswatch
+
+  test-action:
+    name: Test GitHub Action
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Test DNSWatch Action (Audit)
+        uses: ./
+        with:
+          command: audit
+          domain: example.com
+          format: json
+          fail_on_error: 'false'
+
+      - name: Test DNSWatch Action (Trace)
+        uses: ./
+        with:
+          command: trace
+          domain: cloudflare.com
+          type: A
+          format: json
